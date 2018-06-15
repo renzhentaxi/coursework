@@ -7,3 +7,4 @@
 
 week*/work/day*/*.csv
 week*/work/day*/*.RData
+**/trash/
