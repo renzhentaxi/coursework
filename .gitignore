@@ -5,6 +5,5 @@
 .ipynb_checkpoints
 
 
-week*/work/day*/*.csv
-week*/work/day*/*.RData
-**/trash/
+week*/work/**/*.csv
+week*/work/**/*.RData
