@@ -3,3 +3,7 @@
 *~
 *.zip
 .ipynb_checkpoints
+
+
+week*/work/day*/*.csv
+week*/work/day*/*.RData
