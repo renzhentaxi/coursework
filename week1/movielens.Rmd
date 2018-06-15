@@ -89,4 +89,57 @@ head(ratings) %>% kable()
 # paper, produce one curve for the 100% user satisfaction level and
 # another for 90%---do not, however, bother implementing the null
 # model (shown in the dashed lines).
+
+#rating_rank <- ratings %>% group_by(movie_id) %>% summarise(num_rating=n()) %>% select(num_rating) %>% unique() %>% mutate(rank=rank(num_rating)) %>% arrange(rank)
+
+#rating_withCount <- ratings %>% group_by(movie_id) %>% summarise(num_rating=n())
+
+#final <- left_join(rating_withCount, rating_rank)
+
+movie_pop <- ratings %>% 
+  group_by(movie_id) %>% 
+  summarise(num_rating=n()) %>% 
+  mutate( rank = rank(desc(num_rating), ties.method = "last"))
+
+cutoff_90_count <- ratings %>% 
+  group_by(user_id) %>% 
+  summarize(cutoff=n()) %>% 
+  mutate(cutoff = ceiling(.9* cutoff)) 
+
+cutoff_100_count <- ratings %>% 
+  group_by(user_id) %>% 
+  summarize(cutoff=n())
+
+self_ranked <- ratings %>% 
+  left_join(movie_pop) %>% 
+  group_by(user_id) %>%  
+  mutate(self_rank=rank(rank, ties.method = "last"))
+
+cutoff_90 <- left_join(self_ranked,cutoff_90_count) %>% 
+  filter(self_rank==cutoff) %>% 
+  select(user_id,rank)
+
+cutoff_100 <- left_join(self_ranked,cutoff_100_count) %>% 
+  filter(self_rank==cutoff) %>% 
+  select(user_id,rank)
+
+userCount <- nrow(cutoff_100)
+
+final_100 <- cutoff_100 %>% 
+  group_by(rank) %>% 
+  summarize(count =n()/userCount) %>% 
+  arrange(rank) %>% 
+  mutate(cs=cumsum(count), set_level="100%")
+
+final_90 <- cutoff_90 %>% 
+  group_by(rank) %>% 
+  summarize(count =n()/userCount) %>%  
+  arrange(rank) %>% 
+  mutate(cs=cumsum(count), set_level="90%") 
+
+bind_rows(final_100,final_90) %>% ggplot() + 
+  geom_line(aes(x=rank,y=cs,color=set_level)) +
+  xlab("inventory size") + 
+  ylab("% of users satisfied")
+
 ```

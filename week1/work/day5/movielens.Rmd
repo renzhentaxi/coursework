@@ -138,6 +138,8 @@ final_90 <- cutoff_90 %>%
   mutate(cs=cumsum(count), set_level="90%") 
 
 bind_rows(final_100,final_90) %>% ggplot() + 
-  geom_line(aes(x=rank,y=cs,color=set_level))
+  geom_line(aes(x=rank,y=cs,color=set_level)) +
+  xlab("inventory size") + 
+  ylab("% of users satisfied")
 
 ```
