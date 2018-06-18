@@ -35,6 +35,7 @@ head(ratings) %>% kable()
 
 ```{r dist-ratings}
 # plot the distribution of rating values (slide 21)
+ratings %>% ggplot(aes(x=ratingq)) + geom_histogram();
 ```
 
 ## Per-movie stats
@@ -42,16 +43,23 @@ head(ratings) %>% kable()
 ```{r aggregate-by-movie}
 # aggregate ratings by movie, computing mean and number of ratings
 # hint: use the n() function for easy counting within a group
+ratings %>% group_by(movie_id) %>% summarize(avg=mean(rating), count=n())
 ```
 
 ```{r dist-movie-popularity}
 # plot distribution of movie popularity (= number of ratings the movie received)
 # hint: try scale_x_log10() for a logarithmic x axis
+ratings %>% group_by(movie_id) %>% 
+  summarize(count=n()) %>% 
+  ggplot(aes(x=count)) + 
+  geom_histogram() +
+  scale_x_log10();
 ```
 
 ```{r dist-mean-ratings-by-movie}
 # plot distribution of mean ratings by movie (slide 23)
 # hint: try geom_histogram and geom_density
+ratings %>% group_by(movie_id) %>% summarize(avg=mean(rating)) %>% ggplot(aes(x=avg)) + geom_histogram()
 ```
 
 ```{r cdf-movie-pop}
@@ -60,6 +68,16 @@ head(ratings) %>% kable()
 # store the result in a new data frame so you can use it in creating figure 2 from the paper below
 
 # plot the CDF of movie popularity
+rowCount = nrow(ratings);
+
+ratings %>% 
+  group_by(movie_id) %>% 
+  summarize(popularity=n()/rowCount) %>%
+  mutate(rank=rank(desc(popularity), ties.method="first")) %>% 
+  arrange(rank) %>% 
+  mutate(cs=cumsum(popularity)) %>% View
+  ggplot(aes(x=rank,y=cs)) + 
+  geom_point()
 ```
 
 
@@ -67,11 +85,13 @@ head(ratings) %>% kable()
 
 ```{r aggregate-by-user}
 # aggregate ratings by user, computing mean and number of ratings
+ratings %>% group_by(user_id) %>% summarize(avg=mean(rating), count=n())
 ```
 
 ```{r dist-user-activity}
 # plot distribution of user activity (= number of ratings the user made)
 # hint: try a log scale here
+ratings %>% group_by(user_id) %>% summarize(count=n()) %>% ggplot(aes(x=count)) + geom_histogram()
 ```
 
 # Anatomy of the long tail
