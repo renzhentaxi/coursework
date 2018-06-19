@@ -43,6 +43,7 @@ head(X)
 # Histogram of the first column.  We can see that it looks like a bell curve
 hist(X[,1])
 
+
 #NOTE: if you wanted to draw from something with a non-zero mean and more interesting variance that's: rnorm(n*p)*st_dev + mu
 st_dev <- 2
 mu <- 50
