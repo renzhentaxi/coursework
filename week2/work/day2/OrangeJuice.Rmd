@@ -1,0 +1,82 @@
+---
+title: "hw2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r initial_setup}
+library(tidyverse);
+orangeJuices <- read.csv("oj.csv");
+```
+
+```{r box-plot}
+ggplot(orangeJuices, aes(y=price, x="orange Juice")) + geom_boxplot()
+```
+
+
+```{r box_plot_logPrice}
+
+ggplot(orangeJuices, aes(x="Orange Juices",y=log(price))) +
+  geom_boxplot()
+```
+
+``` {r box_plot_price_brand}
+ggplot(orangeJuices, aes(x=factor(brand),y=price, fill=brand)) +
+  geom_boxplot()
+```
+
+```{r box_plot_logPrice_brand}
+
+ggplot(orangeJuices, aes(x=brand,y=log(price), fill=brand)) +
+  geom_boxplot()
+```
+
+```{r logmove_vslogprice}
+
+ggplot(orangeJuices, aes(x=log(price),y=logmove,color=brand)) + geom_point();
+
+```
+
+```{r regression_logmove}
+  regression <- lm(data=orangeJuices, formula=logmove~logprice);
+  ggplot(orangeJuices, aes(x=log(price),y=logmove,color=brand)) + geom_point() +
+    stat_smooth(method="lm",color="red")
+
+  test <- orangeJuices %>% mutate(dominicks=ifelse(brand=="dominicks",1,0),tropicana=ifelse(brand=="tropicana",1,0), mm=ifelse(brand=="minute.maid",1,0));
+  
+  lm(test,formula=logmove~logprice:dominicks +logprice:tropicana + logprice:mm)
+  lm(test,formula=logmove~logprice:brand)
+  
+  sample_80 <- sample_n(orangeJuices,.8*nrow(orangeJuices));
+  sample_20 <- setdiff(orangeJuices,sample_80)
+  sample_80_lm <- lm(sample_80,formula=logmove~logprice:brand)
+  yhat <-predict(sample_80_lm,newdata = sample_20)
+  
+  cbind(sample_20,yhat) %>% select(logprice,logmove,yhat,brand) %>%
+    ggplot(aes(x=logprice,y=yhat,color=brand)) + geom_point()
+  
+   cbind(sample_20,yhat) %>% select(logprice,logmove,yhat,brand) %>%
+    ggplot(aes(x=logprice,y=logmove,color=brand)) + geom_point()
+   
+  lm(test,formula=logmove~logprice+brand)
+  lm(test,formula=logmove~logprice+tropicana +mm)
+```
+
+
+```{r featured_most}
+  orangeJuices %>% filter(feat==1) %>% ggplot(aes(x=logprice,y=logmove,color=brand)) +
+    geom_point(position="jitter")
+  orangeJuices %>% group_by(brand) %>% summarize(featureRate=mean(feat),avg=mean(logprice)) %>% View 
+
+```
+
+```{r regression_with_feature}
+  lm(sample_80,formula=logmove~logprice:brand+feat)
+  summary(lm(sample_80,formula=logmove~logprice:brand*feat))
+  summary(lm(sample_80,formula=logmove~logprice:brand:feat))
+  
+  
+```
