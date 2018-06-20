@@ -9,4 +9,4 @@ week*/work/**/*.csv
 week*/work/**/*.RData
 week*/work/**/*.tsv
 week*/work/**/*.dat
-notes/
+*.pdf
