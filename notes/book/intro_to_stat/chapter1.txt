@@ -1,0 +1,28 @@
+Population: 
+    an entire collection of persons, things, or objects under study.
+
+Sample: 
+    a subset of the population.
+    The sample must contain the characteristics of the population in order to be a representative sample.
+    
+
+Sampling: 
+    when you select a portion (or subset) of the larger population and study that portion(sample)
+    to gain information about the population.
+
+Data: 
+    the result of sampling from a population.
+
+Why sampling?
+    it takes a lot of time and money to examine an entire population and thus it is often more practical to 
+    select a sample of the population and use the data collected to predict/estimate some property of the population.
+
+Statisitc: 
+    A number that is a property of the sample.
+    It is calculated from sample data.
+
+Parameter:
+    A number that is a property of the population.
+
+Statistics:
+    one of the main concern in statistics is how accately a statstic estimates a parameter;

@@ -1,0 +1,5 @@
+table:  takes input as a sequence of data and produces the frequencies of the different values;
+    table(c(1,2,2,3)) ->
+        1 2 3
+        1 2 1
+data.frame: creates a dataframe from the input.

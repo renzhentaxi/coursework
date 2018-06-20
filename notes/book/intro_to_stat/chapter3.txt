@@ -1,0 +1,20 @@
+Inter-quartile-range:
+    the distance between the third quartile and the first quartile.
+Outlier:
+    a data point that is larger than the third quartile plus the inter-quartile-range*1.5; Q3 + 1.5 * IRQ
+    a data point that is smaller than the Q1 - 1.5 * IRQ;
+
+boxplot:
+    the whiskers extend to the smallest and largest value that is not an outlier.
+
+median is often better measure of the center when there are extreme values or outliers because it is not affected
+by the precise numerical values of theoutlier.
+
+in a perfectly symmetrical distribution: mean and median are the same.
+if the distribution of data is skewed to the right then the median is less than the mean.
+
+if the distribution of data is skewed to the left then themedian is more than the mean.
+
+measure of the spread of data
+    inter-quartile range
+    standard deviation

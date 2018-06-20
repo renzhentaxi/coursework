@@ -10,3 +10,5 @@ week*/work/**/*.RData
 week*/work/**/*.tsv
 week*/work/**/*.dat
 *.pdf
+notes/**/*.csv
+notes/**/*.RData

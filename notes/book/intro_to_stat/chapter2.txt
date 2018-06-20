@@ -1,0 +1,10 @@
+The aim in statistics is to learn the characteristics of a population on the basis of a sample 
+selected from the population;
+    This requires us to consider the variation in the data.
+
+variation:
+    present in any set of data.
+
+Random sampling: select randomly a given number of objects from the population.
+
+Cluster sampling: select randomly a given number of clusters of objects from the population.
