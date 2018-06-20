@@ -1,0 +1,165 @@
+---
+title: "Movielens"
+date: '`r Sys.time()`'
+output:
+  html_document:
+    #code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+library(scales)
+library(tidyverse)
+library(knitr)
+
+# set plot theme
+theme_set(theme_bw())
+```
+
+# Load and preview data
+
+Read data from the `ratings.csv` file
+```{r load-data}
+ratings <- read_csv('ratings.csv',
+                    col_names = c('user_id','movie_id','rating','timestamp'))
+```
+
+Loaded `r format(object.size(ratings), units="Mb")` of ratings data, containing `r format(nrow(ratings), big.mark = ",")` ratings. Here's a preview:
+```{r preview-data}
+head(ratings) %>% kable()
+```
+
+# Summary statistics
+
+```{r dist-ratings}
+# plot the distribution of rating values (slide 21)
+ratings %>% ggplot(aes(x=rating)) + geom_histogram();
+```
+
+## Per-movie stats
+
+```{r aggregate-by-movie}
+# aggregate ratings by movie, computing mean and number of ratings
+# hint: use the n() function for easy counting within a group
+ratings %>% group_by(movie_id) %>% summarize(avg=mean(rating), count=n())
+```
+
+```{r dist-movie-popularity}
+# plot distribution of movie popularity (= number of ratings the movie received)
+# hint: try scale_x_log10() for a logarithmic x axis
+ratings %>% group_by(movie_id) %>% 
+  summarize(count=n()) %>% 
+  ggplot(aes(x=count)) + 
+  geom_histogram() +
+  scale_x_log10();
+```
+
+```{r dist-mean-ratings-by-movie}
+# plot distribution of mean ratings by movie (slide 23)
+# hint: try geom_histogram and geom_density
+ratings %>% group_by(movie_id) %>% summarize(avg=mean(rating)) %>% ggplot(aes(x=avg)) + geom_histogram();
+```
+
+```{r cdf-movie-pop}
+# rank movies by popularity and compute the cdf, or fraction of movies covered by the top-k moves (slide 25)
+# hint: use dplyr's rank and arrange functions, and the base R sum and cumsum functions
+# store the result in a new data frame so you can use it in creating figure 2 from the paper below
+
+# plot the CDF of movie popularity
+rowCount = nrow(ratings);
+
+ratings %>% 
+  group_by(movie_id) %>% 
+  summarize(popularity=n()/rowCount) %>%
+  mutate(rank=rank(desc(popularity), ties.method="first")) %>% 
+  arrange(rank) %>% 
+  mutate(cs=cumsum(popularity)) %>%
+  ggplot(aes(x=rank,y=cs)) + 
+  geom_point()
+```
+
+
+# Per-user stats
+
+```{r aggregate-by-user}
+# aggregate ratings by user, computing mean and number of ratings
+ratings %>% group_by(user_id) %>% summarize(avg=mean(rating), count=n())
+```
+
+```{r dist-user-activity}
+# plot distribution of user activity (= number of ratings the user made)
+# hint: try a log scale here
+ratings %>% group_by(user_id) %>% summarize(count=n()) %>% ggplot(aes(x=count)) + geom_histogram() +ylab("occurance")
+```
+
+# Anatomy of the long tail
+
+```{r long-tail}
+# generate the equivalent of figure 2 of this paper:
+# https://5harad.com/papers/long_tail.pdf
+
+# Specifically, for the subset of users who rated at least 10 movies,
+# produce a plot that shows the fraction of users satisfied (vertical
+# axis) as a function of inventory size (horizontal axis). We will
+# define "satisfied" as follows: an individual user is satisfied p% of
+# the time at inventory of size k if at least p% of the movies they
+# rated are contained in the top k most popular movies. As in the
+# paper, produce one curve for the 100% user satisfaction level and
+# another for 90%---do not, however, bother implementing the null
+# model (shown in the dashed lines).
+
+#rating_rank <- ratings %>% group_by(movie_id) %>% summarise(num_rating=n()) %>% select(num_rating) %>% unique() %>% mutate(rank=rank(num_rating)) %>% arrange(rank)
+
+#rating_withCount <- ratings %>% group_by(movie_id) %>% summarise(num_rating=n())
+
+#final <- left_join(rating_withCount, rating_rank)
+
+movie_pop <- ratings %>% 
+  group_by(movie_id) %>% 
+  summarise(num_rating=n()) %>% 
+  mutate( rank = rank(desc(num_rating), ties.method = "last"))
+
+cutoff_90_count <- ratings %>% 
+  group_by(user_id) %>% 
+  summarize(cutoff=n()) %>% 
+  mutate(cutoff = ceiling(.9* cutoff)) 
+
+cutoff_100_count <- ratings %>% 
+  group_by(user_id) %>% 
+  summarize(cutoff=n())
+
+self_ranked <- ratings %>% 
+  left_join(movie_pop) %>% 
+  group_by(user_id) %>%  
+  mutate(self_rank=rank(rank, ties.method = "last"))
+
+cutoff_90 <- left_join(self_ranked,cutoff_90_count) %>% 
+  filter(self_rank==cutoff) %>% 
+  select(user_id,rank)
+
+cutoff_100 <- left_join(self_ranked,cutoff_100_count) %>% 
+  filter(self_rank==cutoff) %>% 
+  select(user_id,rank)
+
+userCount <- nrow(cutoff_100)
+
+final_100 <- cutoff_100 %>% 
+  group_by(rank) %>% 
+  summarize(count =n()/userCount) %>% 
+  arrange(rank) %>% 
+  mutate(cs=cumsum(count), set_level="100%")
+
+final_90 <- cutoff_90 %>% 
+  group_by(rank) %>% 
+  summarize(count =n()/userCount) %>%  
+  arrange(rank) %>% 
+  mutate(cs=cumsum(count), set_level="90%") 
+
+bind_rows(final_100,final_90) %>% ggplot() + 
+  geom_line(aes(x=rank,y=cs,color=set_level)) +
+  xlab("inventory size") + 
+  ylab("% of users satisfied")
+
+```

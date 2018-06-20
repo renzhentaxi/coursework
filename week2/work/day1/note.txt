@@ -1,0 +1,42 @@
+Population: Real thing in the world, but I might not have access to it.
+(Deterministic until I Sample from it);
+
+This has a true population mean(average), variance, etc.
+
+statistic: any function of a random sample;
+
+estimator: a statistic that tells us something about a property of the population;
+
+sampling distribution: $avg_x=formula:[];
+
+How could I estimate the true average height u? :
+1.use sample mean.
+2.use biggest + smallest / 2;
+3.use median: value that split data in half.
+
+Imagine we repeat our measuring experiment a whole bunch of times.
+Take a sample of n = 100, compute sample mean x, do that 1000 times.
+
+sampling distribution: plot the distribution of the sample means, called the sampling distribution.
+turns out that the average of the sampling distribution will get very close to the true mean.
+
+avg = fraction(1,n) > multiply sum(i=0,)
+
+standard error is how much the sampling distribution varies around its average.
+    a function of sample size;
+standard deviation: how much things actual vary.
+standard error is the standard devition of the sampling distribution.
+
+confidence internval: if you repeat the process 100 times, roughly p% of the  intervals I constructed will contain the true population mean.
+1,2,3
+(1-2)^2
+(2-2)^2
+(3-2)^2
+1^2 + 2^2 - 2(2)(1) = 1
+2^2 + 2^2 - 2(2)(2) = 4 + 4 - 8 = 0
+3^2 + 2^2 - 2(2)(3) = 9 + 4 - 12 = 1
+
+1 + 4 + 9 = 14
+12
+-4(1+2+3) = -4 *6 = 24
+sum/n^2 * n
