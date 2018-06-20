@@ -1,0 +1,6 @@
+Intial_Files = 
+{
+    "../../":  ["download_movies.sh", "rmovies.r"]
+}
+
+get ../../download_movies.sh download_movies.sh > run > expect 
