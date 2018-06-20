@@ -1,0 +1,10 @@
+parent: ../../ ->
+    {
+        website.html,
+        citibike, ->{r,sh}
+    }
+    website.html,
+    citibike.(r,sh,),;
+website.html: ../../website.html;
+
+get ${parent}

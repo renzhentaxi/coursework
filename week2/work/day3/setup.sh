@@ -4,3 +4,4 @@
 # rename /\
 
 cp ../../HW2_sols_2018.html ./
+cp ../../oj.csv ./
