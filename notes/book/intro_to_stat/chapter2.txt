@@ -8,3 +8,29 @@ variation:
 Random sampling: select randomly a given number of objects from the population.
 
 Cluster sampling: select randomly a given number of clusters of objects from the population.
+
+common problems that occurs in data that one should be aware of 
+    Problems with samples:
+        when the sample is not a representative of the population.
+        When the sample is biased.
+    Data quality: 
+        avoidable errors introduced to the data via inaccurate handling of forms, mistakes in the input of data.
+    
+    Self-selected samples: respones only by people who choose to respond, such as call-in surveys, 
+        that are often biased.
+
+    Sample Size Issues: samples that are too small may be unreliable. Larger samples, when possible, are better.
+        small samples are unavoidable in some situations but can they can still be used to draw conclusion
+
+    Undue Influence: Collecting data or asking questions in a way that influences the response.
+
+    Causality: a relationship between two variables does not mean that one causes the other.It could be that they
+        are just correlated with each other.
+    
+    Self-funded/self-interest: when the studyis performed by a person in order to support their claim.
+
+    misleading use of data: improperly displayed graphs and incomplete data.
+
+    confounding: when the effects of multiple factors on a response cannot be separated they are confounding or
+        confusing. they make it difficult to draw valid conclusions about the effect of each factor.
+    
