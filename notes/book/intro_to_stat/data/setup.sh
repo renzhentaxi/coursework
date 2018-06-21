@@ -1,8 +1,12 @@
-to_download=(pop1.csv ex1.csv);
+#!/bin/bash
 
-for i in ${to_download[*]};
-do
-    if [ ! -f $i ];
-        then wget http://pluto.huji.ac.il/~msby/StatThink/Datasets/$i;
+filename="./setup.data";
+
+while IFS='' read -r line || [[ -n $line ]]; do
+    IFS=',' read -r -a cmd <<< $line;
+    req=${cmd[0]};
+    toExecute=${cmd[1]};
+    if [ ! -f $req ]; then
+        eval $toExecute;
     fi;
-done;
+done < $filename;
