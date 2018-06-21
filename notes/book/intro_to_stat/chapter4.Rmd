@@ -1,0 +1,10 @@
+```{r setup}
+    setwd("./notes/book/intro_to_stat/data")
+    pop.1 <- read.csv(file="pop1.csv");
+```
+The probability that height is between 160 and 180.
+
+```{r}
+    X <- pop.1$height;
+    mean(abs(X-170) <= 10)
+```

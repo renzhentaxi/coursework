@@ -1,0 +1,11 @@
+testing
+
+expectation: marks the center of the distribution of a random variable. It is equivalent to the data average x and the population average u.
+    it is used in order to mark the location of the distribution of the data and the population respectively.
+
+E(X) = sum [x * P(x)]
+Var(X) = sum [ (x-E(X))^2 * P(x)]
+
+general laws that govern this variability in repetitions
+
+The average of sevearl indepdendent repeats of the measurement is less variable and more reproducible than each of the single measurements themselves.

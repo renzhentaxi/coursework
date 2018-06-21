@@ -1,0 +1,29 @@
+Consider the distribution of a variable in a population and compute parameters of this distribution, such as the mean and the standard deviation.
+
+Become familiar with the concept of a random variable
+
+Understand the relation between the distribution of the population and the distribution of a random varaible produced by sampling a random subject 
+from the population.
+
+Identify the distribution of the random variable in simple settings and compute its expectation and variance.
+
+
+population variability: how the individuals vary within a population
+    mean/median/q1/q3/varaince/standard deviation of a population.
+random variable: uncertainty/randomness. 
+    a random varaible is the future outcome of a measurement, before the measurement is taken.
+    It does not have a specific value, but rather a collection of potential values with a distribution over these values.
+    After the measurement is taken and the specific value is revealed then the random variable ceases to be a random variable! Instead, it becomes data.
+
+A radnom variable is typically the outcome of an observation, a measurement, or a function thereof.
+A randomv ariable is characterized via the collection of potential values it may obtain, known as the sample space and the likelihood of obtaining each of the
+values in the sample space.
+
+a Random variable is chracterized via the collection of potential valeus it may obtain, known as the sample space and the likelihood of obtaining each of the values
+in the sample space.
+population variance is divided by n
+where as sample variance is divided by n-1
+
+Sample space: all the possible value a random variable can be.
+the probability function of a random variable is defined for any value that the random variable may obtain and produces the distribution of the random varaible.
+    this probability can come from relative frequency or as a result of theoretical modeling.
