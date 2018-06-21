@@ -18,3 +18,8 @@ if the distribution of data is skewed to the left then themedian is more than th
 measure of the spread of data
     inter-quartile range
     standard deviation
+
+variance:
+    sum(deviation_squared)/n-1
+    when only the freqency is supplied instead of the actual data.
+        sum(deviation_squared*frequency)/n-1
