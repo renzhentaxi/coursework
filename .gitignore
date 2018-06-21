@@ -12,3 +12,5 @@ week*/work/**/*.dat
 *.pdf
 notes/**/*.csv
 notes/**/*.RData
+
+temp_*

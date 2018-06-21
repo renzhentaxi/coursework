@@ -85,6 +85,7 @@ iii.	What are the coefficient estimates on the constants HVAL150 and your variab
 iv.	Similar to 2b, if we move from the median value of each variable to the 3rd quartile, how much does elasticity change? Based on this, which is more important to price sensitivity?
 
 ```{r}
+#variables
 set.seed(1);
 Num_folds <-5;
 model.formula <- logmove ~ log(price);
@@ -96,6 +97,7 @@ combined <- cbind(randomized, partitioned)
 
 yterm <- toString(model.formula[2]); 
 mse <- c(1:Num_folds);
+
 for(i in 0:(Num_folds-1))
 {
   test_sample<- randomized %>% filter(partitioned == i);
@@ -106,4 +108,20 @@ for(i in 0:(Num_folds-1))
   mse[i+1] <- diff; 
 }
 mean(mse)
+```
+
+```{r}
+spreaded <- oj %>% spread(key=brand,value=price)%>% select(store,week) %>% unique();
+mm <- oj %>% spread(key=brand,value=price) %>%  select(week,store,minute.maid) %>% 
+  filter(!is.na(minute.maid))
+trop <- oj %>% spread(key=brand,value=price) %>%  select(week,store,tropicana) %>% 
+  filter(!is.na(tropicana))
+dom <- oj %>% spread(key=brand,value=price) %>%  select(week,store,dominicks) %>% 
+  filter(!is.na(dominicks))
+almost <- merge(x=spreaded, y=mm, by=c("store","week")) %>%  merge(trop) %>% merge(dom)
+
+merge(oj,almost, by=c("store","week")) %>% View
+
+oj %>% select(store,week,brand,price) %>% spread(brand,price) %>% View
+
 ```
