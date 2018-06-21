@@ -122,6 +122,6 @@ almost <- merge(x=spreaded, y=mm, by=c("store","week")) %>%  merge(trop) %>% mer
 
 merge(oj,almost, by=c("store","week")) %>% View
 
-oj %>% select(store,week,brand,price) %>% spread(brand,price) %>% View
+oj %>% select(store,week,brand,price,feat) %>% spread(brand,value=c(price,feat)) %>% View
 
 ```

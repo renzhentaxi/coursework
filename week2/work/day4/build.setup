@@ -1,0 +1,3 @@
+trips.RData, ../../../week1/download_trips.sh
+hw4_ds3_2018.docx, cp ../../hw4\ DS3\ 2018.docx ./
+weather.csv, cp ../../../week1/weather.csv ./
