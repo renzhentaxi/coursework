@@ -1,0 +1,74 @@
+---
+title: "Predicting daily Citibike trips"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+load("trips.RData")
+trips_weather <- trips %>% group_by(ymd) %>% summarize(count=n()) %>% left_join(weather,by="ymd") %>% filter(! is.na(tmin))
+
+#adding date related details
+trips_weather_weekday <- mutate(trips_weather,weekday = weekdays(ymd), month = month(ymd), weekend =(weekday=="Sunday" | weekday=="Saturday"))
+
+#adding lagged weather data
+trips_lagged <- trips_weather_weekday %>% mutate (ymd = ymd+1)
+trips_lagged <- merge(trips_lagged,trips_weather_weekday, by="ymd", suffixes=c(".prev",""))
+
+```
+
+
+#### The point of this exercise is to get experience in an open-ended prediction exercise: predicting the total number of Citibike trips taken on a given day. Do all of your work in an RMarkdown file named predict_citibike.Rmd. Here are the rules of the game: 
+
+1. You can use any features you like that are available prior to the day in question, ranging from the weather, to the time of year and day of week, to activity in previous days or weeks, but don't cheat and use features from the future (e.g., the next day's trips).
+    ```{r q1}
+    
+    #weekend day
+    model.1.formula <- count ~ prcp + weekday 
+    
+    ggplot(trips_weather_weekday, aes(x=ymd,y=count)) + geom_point() + facet_wrap(facets=~weekend)
+    
+    ggplot(trips_weather_weekday, aes(x=ymd,y=count)) + geom_point()
+    
+    ```
+    
+    ```{r test}
+    testModel <- function(model, data)
+    {
+      output <- toString(model$terms[[2]]);
+      yHat <- predict(model,data);
+      rSquared <- cor(yHat,data[[output]])^2;
+      rsme <- sqrt(mean((yHat-data[[output]])^2))
+      return (c(rSquared,rsme))
+    }
+    
+    trainModel <- function(formulas, data, train_ratio, seed)
+    {
+        set.seed(seed)
+        training <- sample_frac(data,size = train_ratio);
+        test <- anti_join(data, training);
+        results <- list();
+        
+        for (i in formulas)
+        {
+            model <- lm(data=training,formula=i)
+            results[[toString(i)]] <- testModel(model,test)
+            print(results[[toString(i)]])
+        }
+        return(results)
+    }
+    formulas <- list(count~poly(tmin,2)+snwd.prev+snwd+count.prev+prcp+weekend+snow.prev + I(snwd^5) + I(snwd^3) + I(snwd^2),
+                     count~poly(tmin,2)+snwd.prev+snwd+count.prev+prcp+weekend+snow.prev + I(snwd^5) + I(snwd^3) + I(snwd^2) + I(count.prev^2))
+    x <- trainModel(formulas, trips_lagged, .8,1)
+    ```
+2. As usual, split your data into training and testing subsets and evaluate performance on each.
+
+3. Quantify your performance in two ways: R^2 (or the square of the correlation coefficient), as we've been doing, and with root mean-squared error.
+
+4. Report the model with the best performance on the test data. Watch out for overfitting.
+
+5. Plot your final best fit model in two different ways. First with the date on the x-axis and the number of trips on the y-axis, showing the actual values as points and predicted values as a line. Second as a plot where the x-axis is the predicted value and the y-axis is the actual value, with each point representing one day.
+
+6. Inspect the model when you're done to figure out what the highly predictive features are, and see if you can prune away any negligble features that don't matter much.

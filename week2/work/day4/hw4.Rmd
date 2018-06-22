@@ -59,7 +59,7 @@ rmse.training <-sqrt(mean((yhat.training-training_set$count)^2))
       rmses[[i]] <- sqrt(mean((yhats[[i]]-test_set$count)^2))
     }
     
-    temp_matrix <- cbind(rSquared.training=rSquareds.training,rSquared=rSquareds,degree=1:10)
+    temp_matrix <- cbind(rSquared.training=rSquareds.training,rSquared=rSquareds,rmses,degree=1:10)
    
      asTable <- as.data.frame(temp_matrix)
     
@@ -68,13 +68,14 @@ rmse.training <-sqrt(mean((yhat.training-training_set$count)^2))
       geom_line(aes(y=rSquared),color="red") +
       scale_x_continuous(breaks = 1:10)
     ```
+
 Finally, fit one model for the value of k with the best performance in 6), and plot the actual and predicted values for this model.
 
 ```{r}
   y_hat <- lm(formula=count ~ poly(tmin,6),ridership_weather) %>% predict(newdata=ridership_weather)
 
   ridership_weather %>% cbind(predicted_count=y_hat) %>% ggplot(aes(x=tmin)) +
-    geom_line(aes(y=count),color="red") +
+    geom_point(aes(y=count),color="red") +
     geom_line(aes(y=predicted_count),color="blue")
 ```
    
