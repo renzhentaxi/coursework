@@ -1,0 +1,37 @@
+:stem:
+MSE: L = mean((y-y_hat)^2)
+
+y_hat = m*x_i + b 
+
+find m and b that minimizes L
+
+jmhsr.shinyapps.io/modelfit/
+
+f(x) = a*x^2 + b*x + c
+
+f'(x) = 2*a*x + b
+0 = 2*a*x + b
+-b = 2*a*x
+-b/(2*a) = X_min
+
+l = 1/N sum((y_i - m*x_i - b))^2
+dl/db = 1/N sum (l/db (y_i-m,x_i)
+exp(minus(yi,product(m,xi),b),2)
+
+tools
+axe:
+    energy-cost
+    speed
+    name
+    id
+    block
+    durability
+    max-durability
+xkcd
+
+[stem]
+++++
+L = 1/N sum_(i=1)^N (y_i - hat y_i)^2 + lambda(|m|)
+++++
+
+lasso figuring out the value of lambda

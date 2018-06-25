@@ -1,0 +1,87 @@
+---
+title: "hw4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+load(file="trips.RData")
+
+ridership <- trips %>% group_by(ymd) %>% summarize(count = n())
+ridership_weather <- left_join(ridership,weather,by = "ymd")  %>% filter(! is.na(tmin));
+
+```
+```{r}
+set.seed(1)
+training_set <- sample_frac(ridership_weather,size=.8,replace=FALSE)
+test_set <- setdiff(ridership_weather,training_set)
+model.linear =lm(data=training_set, formula= count ~ tmin)
+yhat <- predict(model.linear, newdata=test_set);
+test_set <- cbind(test_set,count_hat=yhat)
+
+
+ggplot(test_set,aes(x=tmin)) +
+  geom_point(aes(y=count)) +
+  geom_line(aes(y=count_hat), color="green")
+#plot
+rSquared <- cor(yhat,test_set$count)^2
+rmse <-sqrt(mean((yhat-test_set$count)^2))
+
+yhat.training <- predict(model.linear,training_set);
+rSquared.training <- cor(yhat.training,training_set$count)^2
+rmse.training <-sqrt(mean((yhat.training-training_set$count)^2))
+
+```
+1. Using the bikeshare data, select which order of polynomial 1:10 best uses temperature to predict total bike ridership.
+    a. First use OLS and use the cross-validation code from class.
+    ```{r}
+    set.seed(1)
+    training_set <- sample_frac(ridership_weather,size=.8,replace=FALSE)
+    test_set <- setdiff(ridership_weather,training_set)
+    models <- list();
+    yhats <- list()
+    yhats.training <- list();
+    rSquareds <-c(1:10);
+    rSquareds.training <- c(1:10);
+    rmses <- c(1:10);
+    for (i in 1:10)
+    {
+      formula <- count ~ poly(tmin,i);
+      models[[i]]<- lm(data=training_set, formula=formula)
+      
+      yhats[[i]] <- predict(models[[i]],newdata= test_set)
+      yhats.training[[i]] <- predict(models[[i]],newdata=training_set)
+      
+      rSquareds[[i]] <- cor(yhats[[i]],test_set$count)^2
+      rSquareds.training[[i]] <- cor(yhats.training[[i]],training_set$count)^2;
+      
+      rmses[[i]] <- sqrt(mean((yhats[[i]]-test_set$count)^2))
+    }
+    
+    temp_matrix <- cbind(rSquared.training=rSquareds.training,rSquared=rSquareds,rmses,degree=1:10)
+   
+     asTable <- as.data.frame(temp_matrix)
+    
+    asTable%>%ggplot(aes(x=degree)) +
+      geom_line(aes(y=rSquared.training), color="blue") +
+      geom_line(aes(y=rSquared),color="red") +
+      scale_x_continuous(breaks = 1:10)
+    ```
+
+Finally, fit one model for the value of k with the best performance in 6), and plot the actual and predicted values for this model.
+
+```{r}
+  y_hat <- lm(formula=count ~ poly(tmin,6),ridership_weather) %>% predict(newdata=ridership_weather)
+
+  ridership_weather %>% cbind(predicted_count=y_hat) %>% ggplot(aes(x=tmin)) +
+    geom_point(aes(y=count),color="red") +
+    geom_line(aes(y=predicted_count),color="blue")
+```
+   
+    b. Now try with LASSO to determine which model has the lowest cross validated MSE.
+    
+    c. Does adding additional features into the model change the optimal order of polynomial to include?
+```
+
+```
