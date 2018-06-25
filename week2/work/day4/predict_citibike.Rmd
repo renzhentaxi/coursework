@@ -7,16 +7,30 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
-load("trips.RData")
-trips_weather <- trips %>% group_by(ymd) %>% summarize(count=n()) %>% left_join(weather,by="ymd") %>% filter(! is.na(tmin))
 
-#adding date related details
-trips_weather_weekday <- mutate(trips_weather,weekday = weekdays(ymd), month = month(ymd), weekend =(weekday=="Sunday" | weekday=="Saturday"))
+#helper method to load trips and reshape them
+loadTrips <- function(location)
+{
+  load(location)
+  temp.trips <- trips %>% 
+    group_by(ymd) %>% 
+    summarize(count=n()) %>% 
+    left_join(weather,by="ymd") %>% 
+    filter(!is.na(tmin)) %>%
+    mutate(weekday = weekdays(ymd), month = month(ymd)) %>%
+    mutate(weekend=(weekday == "Sunday" | weekday == "Saturday"))
+  
 
-#adding lagged weather data
-trips_lagged <- trips_weather_weekday %>% mutate (ymd = ymd+1)
-trips_lagged <- merge(trips_lagged,trips_weather_weekday, by="ymd", suffixes=c(".prev",""))
+  #adding lagged weather data
+  temp.trips.lagged <- temp.trips %>% mutate (ymd = ymd+1)
+  temp.trips.lagged <- merge(temp.trips.lagged,temp.trips, by="ymd", suffixes=c(".prev",""))
+  return (temp.trips.lagged)
+}
 
+#loading 2015 data
+trips.2015 <-loadTrips("2015/trips.RData")
+#loading 2014 data
+trips.2014 <-loadTrips("2014/trips.RData")
 ```
 
 
@@ -35,33 +49,85 @@ trips_lagged <- merge(trips_lagged,trips_weather_weekday, by="ymd", suffixes=c("
     ```
     
     ```{r test}
-    testModel <- function(model, data)
+    #tests a given list of models against a given list of test_datas
+    testModel <- function(models, test_datas)
     {
-      output <- toString(model$terms[[2]]);
-      yHat <- predict(model,data);
-      rSquared <- cor(yHat,data[[output]])^2;
-      rsme <- sqrt(mean((yHat-data[[output]])^2))
-      return (c(rSquared,rsme))
+      results <- list();
+      counter <- 1;
+      for (i in 1:length(models))
+      {
+        results[[i]] <- list();
+        model <- models[[i]];
+        for (j in 1:length(test_datas))
+        {
+          data <- test_datas[[j]];
+          output <- toString(model$terms[[2]]);
+          yHat <- predict(model,data);
+          rSquared <- cor(yHat,data[[output]])^2;
+          rsme <- sqrt(mean((yHat-data[[output]])^2));
+          results[[i]][[j]] <-c(rSquared,rsme);
+        }
+      }
+      return (results);
     }
     
-    trainModel <- function(formulas, data, train_ratio, seed)
+    #returns a list of models based on a given formula
+    trainModel <- function(formulas, training_data)
     {
-        set.seed(seed)
-        training <- sample_frac(data,size = train_ratio);
-        test <- anti_join(data, training);
-        results <- list();
-        
-        for (i in formulas)
-        {
-            model <- lm(data=training,formula=i)
-            results[[toString(i)]] <- testModel(model,test)
-            print(results[[toString(i)]])
-        }
-        return(results)
+      results <- list();
+      for (i in length(formulas))
+      {
+        results[[i]] <- lm(data=training_data, formula=formulas[[i]]);
+      }
+      return (results);      
     }
-    formulas <- list(count~poly(tmin,2)+snwd.prev+snwd+count.prev+prcp+weekend+snow.prev + I(snwd^5) + I(snwd^3) + I(snwd^2),
-                     count~poly(tmin,2)+snwd.prev+snwd+count.prev+prcp+weekend+snow.prev + I(snwd^5) + I(snwd^3) + I(snwd^2) + I(count.prev^2))
-    x <- trainModel(formulas, trips_lagged, .8,1)
+    
+    #splits the data into multiple parititions
+    kfold <- function(data, k)
+    {
+      training <- list();
+      test <- list();
+      temp.random <- sample(data);
+      lineCount <- 1:nrow(data)%%k+1;
+      
+      temp.ranked <- cbind(temp.random,p=lineCount)
+      for (i in 1:k)
+      {
+        test[[i]] <- temp.ranked %>% filter(p==i);
+        training[[i]] <- temp.ranked %>% filter(p != i);
+        
+      }
+      return (list(training=training,test=test))
+    }
+    
+    
+    #our formula
+    formulas <- list(
+      count~
+        poly(tmin,2) + 
+        snwd.prev + 
+        poly(count.prev,2) + 
+        prcp + 
+        weekend + 
+        snow.prev + 
+        I(snwd^5) + I(snwd^3) + I(snwd^2) + snwd)
+    
+    set.seed(1);
+    #create training and test data from trips.2014
+    data <- kfold(trips.2014,5)
+    #train the model with only one partition
+    models <- trainModel(formulas,data$training[[1]])
+
+    #add data from 2015 as test data
+    testDatas <- c()
+    testDatas[[1]] <- data$test[[1]];
+    testDatas[[2]] <- trips.2015;
+
+    result <- testModel(models,testDatas) 
+    print(paste("rSquared for 2014 test data(20% of total data): ",result[[1]][[1]][[1]]))
+    print(paste("rmse for 2014 test data(20% of total data): ",result[[1]][[1]][[2]]))
+    print(paste("rSquared for 2015 test data: ",result[[1]][[2]][[1]]))
+    print(paste("rmse for 2015 test data: ",result[[1]][[2]][[2]]))
     ```
 2. As usual, split your data into training and testing subsets and evaluate performance on each.
 
