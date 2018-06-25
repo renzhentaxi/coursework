@@ -6,12 +6,12 @@
 
 
 week*/work/**/*.csv
-week*/work/**/*.RData
-week*/work/**/*.rdata
 week*/work/**/*.tsv
 week*/work/**/*.dat
+
 *.pdf
 notes/**/*.csv
-notes/**/*.RData
+*.RData
+*.rdata
 
 temp_*
