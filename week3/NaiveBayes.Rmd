@@ -1,0 +1,132 @@
+---
+title: "NaiveBayes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("e1071")
+library(e1071)
+```
+
+Creating example data
+
+```{r}
+train <- data.frame(class=c("spam","ham","ham","ham"), viagra=c("yes","no","no","yes"));
+
+train
+```
+P(spam|viagra = yes) = P(viagra|spam) P(spam)/P(viagra)
+
+p(viagra|spam) = 1
+
+p(spam) = 1/4
+p(viagra) = 2/4 = 1/2
+
+(1*1/4) / (1/2)
+
+2/4
+
+1/2
+
+syntax:
+predict ~ given
+```{r}
+classifier <- naiveBayes(class ~ viagra, train)
+classifier
+```
+
+
+estimated model
+
+```{r}
+test <- data.frame(viagra=c("yes"))
+test$viagra <- factor(test$viagra, levels=c("no","yes"))
+test
+
+prediction <- predict(classifier, test, type="raw")
+prediction
+```
+
+two predictors
+
+```{r}
+train$meet <- factor(c("yes","yes","yes","no"));
+
+classifier <- naiveBayes(class ~ viagra + meet, train)
+#p(viagra|spam) p(meet|spam)
+classifier
+
+#p(spam|viagra,meet) = p(viagra=yes,meet=yes|spam) P(spam)/p(viagra,meet)
+#                    =            1                 1/4   /       1/4
+#                    = 1
+```
+
+conditional property with two predictors
+
+```{r}
+test <- data.frame(viagra=c("yes"),meet=c("yes"))
+test$viagra <- factor(test$viagra, levels=c("no","yes"))
+test$meet <- factor(test$meet,levels=c("no","yes"))
+test
+
+prediction <- predict(classifier, test, type="raw")
+prediction
+```
+
+Exercises
+
+1. Suppose you have a database on four customers. You know their income and whether or not they bought your product. Create a data frame with this data.
+```{r}
+train <- data.frame(buy=c("yes","no","no","yes"),
+                    income=c("high","high","medium","low"))
+```
+2. Using Bayes rule calculate the probability that a customer will buy your product given that he or she has high income.
+p(buy|income=high) = p(income=high|buy) p(buy) / p(income=high)
+= .5 * .5 / .5
+= .5
+3. Estimate naive Bayes model using your data above. What is the prior probability of someone buying your product? What is the probability that a customer has a high income give that he or she bought your product?
+
+prior probability of someone buying the product is .5.
+probability that a customer has a high income given that he/she has bought you product is .5;
+```{r}
+classifier <- naiveBayes(buy~income,train)
+classifier
+```
+4. Using the model you estimated above predict the probability of buying given that a customer has high income. Is your result the same as the one you calculated by hand in question 1?
+
+yap its the same
+```{r}
+test <- data.frame(income=c("high"))
+test$income <- factor(test$income, levels=c("high","low","medium"))
+
+prediction <- predict(classifier,test, type="raw")
+prediction
+```
+5. Suppose you have a database on four customers. You know their gender, income and whether or not they bought your product. Create a data frame with this data.
+```{r}
+train$gender <- factor(c("male","female","female","male"))
+```
+6. Using Bayes rule calculate the probability that a customer will buy your product given that he has high income and male.
+
+p(buy=yes|income=high,gender=male) = 1 (based on the table)
+p(buy=yes|income=high,gender=male) = p(income=high,gender=male|buy=yes) * p(buy=yes) / p(income=high,gender=male)
+=.5 * .5 / 1/4
+= 1/4 / 1/4
+= 1
+
+7. Estimate naive Bayes model using your data above. What is the prior probability of someone buying your product? What is the probability that a customer has a high income given that he or she bought your product? What is the probability that a customer is male given that he bought your product?
+```{r}
+classifer <- naiveBayes(buy ~ income + gender, train)
+classifer
+```
+8. Using the model you estimated above, predict the probability of buying given that a customer has a high income and is male. Is your result the same as the one you calculated by hand in question 1?
+
+```{r}
+test <- data.frame(income=c("high"),gender=c("male"))
+test$income <- factor(test$income, levels=c("high","low","medium"))
+test$gender <- factor(test$gender, levels=c("female","male"))
+prediction <- predict(classifier, test, type="raw")
+prediction
+```
+it is not the same as the my result.
