@@ -5,7 +5,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("e1071")
+#install.packages("e1071")
 library(e1071)
 ```
 
@@ -16,21 +16,17 @@ train <- data.frame(class=c("spam","ham","ham","ham"), viagra=c("yes","no","no",
 
 train
 ```
-P(spam|viagra = yes) = P(viagra|spam) P(spam)/P(viagra)
-
-p(viagra|spam) = 1
-
-p(spam) = 1/4
-p(viagra) = 2/4 = 1/2
-
-(1*1/4) / (1/2)
-
-2/4
-
-1/2
+P(spam|viagra = yes) = P(viagra|spam) * P(spam) / P(viagra)
+= 1 * 1/4 / (1/2)
+= 1/4 / 1/2
+= 2/4
+= 1/2
 
 syntax:
 predict ~ given
+but returns P(given1|predict)... P(given2|predict)
+
+to get p(predict|given) you have to make a data.frame with the given and use predict function on it.
 ```{r}
 classifier <- naiveBayes(class ~ viagra, train)
 classifier

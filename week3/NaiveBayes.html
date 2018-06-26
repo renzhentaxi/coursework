@@ -134,12 +134,7 @@ train</code></pre>
 ## 2   ham     no
 ## 3   ham     no
 ## 4   ham    yes</code></pre>
-<p>P(spam|viagra = yes) = P(viagra|spam) P(spam)/P(viagra)</p>
-<p>p(viagra|spam) = 1</p>
-<p>p(spam) = 1/4 p(viagra) = 2/4 = 1/2</p>
-<p>(1*1/4) / (1/2)</p>
-<p>2/4</p>
-<p>1/2</p>
+<p>P(spam|viagra = yes) = P(viagra|spam) P(spam)/P(viagra) = 1 * 1/4 / (1/2) = 1/4 / 1/2 = 2/4 = 1/2</p>
 <p>syntax: predict ~ given</p>
 <pre class="r"><code>classifier &lt;- naiveBayes(class ~ viagra, train)
 classifier</code></pre>
