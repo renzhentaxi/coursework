@@ -19,13 +19,16 @@ then
             if [ ! -f $destDir ]; then
                 echo "new file ${f} detected;";
                 cp $fromDir $destDir;
+                git add $destDir;
             elif ! cmp -s $fromDir $destDir; then
                 echo "change in file ${f} detected;";
                 cp $fromDir $destDir;
+                git add $destDir;
             fi;
         elif [ ! -d $destDir ]; then 
             echo "new folder ${f} detected;";
             mkdir -p $destDir;
+            git add $destDir;
         fi;
     done
 fi;
