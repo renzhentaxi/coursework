@@ -129,12 +129,19 @@ predict(logit,predict_data,type="response")
 ```{r}
 library(pROC)
 
-q <- quantile(data$Age,na.rm=T)
-factored <- data %>% mutate(age.bin = addNA(cut(Age,q)), 
-                            Age = ifelse(is.na(Age),median(Age,na.rm=T),Age))
-levels(factored$age.bin) <- c("0-25%","25-50%","50-75%","75-100%","Missing")
+process <- function(location)
+{
+  data <- read.csv(location);
+  q <- quantile(data$Age,na.rm=T)
+  data <- data %>% mutate(age.bin = addNA(cut(Age,q)), 
+                              Age = ifelse(is.na(Age),median(Age,na.rm=T),Age))
+  levels(data$age.bin) <- c("0-25%","25-50%","50-75%","75-100%","Missing")
+  return (data)
+}
 
-summary(factored)
+test <- process("test.csv");
+train <- process("titanic_train.csv")
+
 testModel <- function (formula, train,test)
 {
   model <- glm(formula=formula, data= train, family="binomial");
@@ -143,8 +150,10 @@ testModel <- function (formula, train,test)
   confusionMatrix(factor(expected), factor(actual))
   }
 
-factored %>% group_by(Age,Sex) %>% summarize(ratio = mean(Survived)) %>% ggplot(aes(x=Age,y=ratio, color = Sex)) + geom_point()
-
-testModel(Survived~Sex*poly(Age,2) + Parch + Pclass + poly(SibSp,3), factored, factored)
+model <- glm(formula = Survived~Sex*poly(Age,2) + Parch + Pclass + poly(SibSp,3), data = train, family = "binomial")
+test$Survived <- ifelse(predict(model,test,type="response")>.5,1,0)
+test <- test %>% select(PassengerId,Survived)
+write.csv(test,file = "test_result.csv",quote=F, col.names = F, row.names = F)
+testModel(Survived~Sex*poly(Age,2) + Parch + Pclass + poly(SibSp,3), train, train)
 
 ```

@@ -1,0 +1,32 @@
+---
+title: "Exercises"
+output:
+  html_document:
+    df_print: paged
+---
+
+12.1
+```{r}
+magnets <- read.csv("magnets.csv")
+placebo <- magnets %>% filter (active == "\"2\"") 
+t.test(placebo$change)
+```
+
+13.1
+```{r}
+t.test(magnets$score1 ~ magnets$active)
+var.test(magnets$score1 ~ magnets$active)
+
+t.test(magnets$change ~ magnets$active)
+#p is less than .05, there is a difference between control and magnet
+var.test(magnets$change ~ magnets$active)
+#there is a difference
+
+ggplot (aes(x = change)) + 
+  stat_function(filter(magnets, active == "\"1\""),fun=dnorm) + 
+  xlim(c(-8,8))
+sd <- sd(magnets$change)
+x <- magnets %>% group_by(active) %>% summarize(mean= mean(change), count = n(),sd=sd(change))
+
+(x$mean[[1]]-x$mean[[2]])/sd
+```
