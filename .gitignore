@@ -9,6 +9,7 @@ week*/work/**/*.csv
 week*/work/**/*.tsv
 week*/work/**/*.dat
 
+.vscode
 *.pdf
 notes/**/*.csv
 *.RData
