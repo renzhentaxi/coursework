@@ -1,0 +1,150 @@
+---
+title: "LogisticRegression"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(stargazer)
+library(caret)
+
+loan <- read.csv("./lending_club_cleaned.csv")
+#loan <- read.csv("C:/Users/dvorakt/Google Drive/business analytics/labs/lab9/lending_club_cleaned.csv")
+summary(loan)
+```
+
+estimating model with glm binomial mode
+```{r}
+logit1 <- glm(good ~ fico, data=loan,family = "binomial")
+summary(logit1)
+exp(coef(logit1))
+```
+
+estimating probability
+```{r}
+test <- data.frame(fico=c(700,750))
+test$pred <- predict(logit1,test, type="response")
+test
+```
+
+multiple regression
+```{r}
+logit2 <- glm(good ~ fico + loan_amnt, data = loan, family = "binomial")
+summary(logit2)
+exp(coef(logit2))
+```
+
+with categorical predictor
+glm will split the predictor into n indicator variables(i think)
+the effect of the indicators are all relative to the baseline
+e.g. major_purchase is 1.061 therefore it has .061 better chance than the baseline.
+```{r}
+logit3 <- glm(good ~ fico + loan_amnt + purpose, data = loan, family = "binomial")
+summary(logit3)
+round(exp(coef(logit3)),3)
+```
+
+testing logistic model out of sample
+```{r}
+set.seed(364)
+sample <- sample(nrow(loan),floor(nrow(loan)*0.8))
+train <- loan[sample,]
+test <- loan[-sample,]
+
+logit4 <- glm(good ~ fico + dti+ loan_amnt + purpose, data = train, family = "binomial")
+test$pred <- predict(logit4, test, type="response")
+
+test$good_pred <- ifelse(test$pred > 0.80, "good", "bad")
+test$good_pred <- factor(test$good_pred)
+confusionMatrix(test$good_pred, factor(test$good))
+```
+
+exercise
+1. Let's load the Titanic training data. What are the odds of surviving the shipwreck?
+```{r}
+data <- read.csv("./titanic_train.csv")
+x <- table(data$Survived);
+
+x[2]/nrow(data)
+```
+there is a 38% chance of surviving
+
+2. Using the logit model, estimate how much lower are the odds of survival for men relative to women?
+```{r}
+logit <- glm(Survived ~ Sex, data ,family="binomial")
+summary(logit)
+exp(coef(logit))
+
+```
+92% less
+
+3. Controlling for gender, does age have a statistically significant effect on the odds of survival? If so, what is the magnitude of that effect?
+```{r}
+logit.age <- glm(Survived ~ Sex + Age, data, family="binomial")
+summary(logit.age)
+exp(coef(logit.age))
+
+#it is not signficant cuz of its low z score
+#the magnitue is .99
+```
+4. Controlling for gender, does passenger class have a statistically significant effect on the odds of survival? If so, what is the magnitude of that effect?
+
+```{r}
+logit.Pclass <- glm(Survived ~ Sex + Pclass, data, family="binomial")
+summary(logit.Pclass)
+exp(coef(logit.Pclass))
+#yes it does have a statistically significant effect
+#the magnitude is .38
+```
+5. Controlling for gender, estimate the effect of being in the second class relative to first class, and the effect of being in the third relative to first.
+```{r}
+data$Pclass.factored <- factor(data$Pclass, levels = c(1,2,3))
+logit<- glm(Survived ~ Sex + Pclass.factored, data, family="binomial")
+summary(logit)
+exp(coef(logit))
+
+#second class is  57% less likely to surive compared to first class
+#third class is 86% less likely to survive compared to first class
+```
+6. Add fare to the regression you estimated above. Is fare a significant determinant of survival controlling for gender and passenger class? Do you think that if we regressed survival on just gender and fare, fare would be significant? Explain.
+
+```{r}
+logit<- glm(Survived ~ Sex + Pclass.factored + Fare, data, family="binomial")
+summary(logit)
+exp(coef(logit))
+# it is not very signifcant isnce it has a z score of .864
+#if we regressed survival on just gender and fair then it should be significant since
+#i think the passenger class and fares are closely related.
+```
+7. As we know from the movie, Jack traveled in the third class and paid 5 pounds (I know that Jack actually won the ticket in poker, but Swen, from whom Jack won the ticket, paid .). Rose traveled in the first class and paid 500 for her ticket (I know that her fiancee, Cal Hockley - Pittsburgh steel tycoon, actually bought the ticket, but .). What is the probability that Jack will survive? What is the probability that Rose will survive?
+```{r}
+predict_data <- data.frame(Pclass=c(3,1), Fare=c(5,500), Sex=c("male","female"))
+predict_data$Pclass.factored <- factor(predict_data$Pclass, levels=c(1,2,3))
+
+predict(logit,predict_data,type="response")
+```
+8. Create your own logistic model and make predictions for passengers in the Titanic test data set. Keep in mind that you must make predictions for all passengers in the test data (even those with missing values). Use your own probability cut off for predicting survival (0.5 is a natural start). Did you do better with logistic regression than with decision trees? Which algorithm do you like better?
+
+```{r}
+library(pROC)
+
+q <- quantile(data$Age,na.rm=T)
+factored <- data %>% mutate(age.bin = addNA(cut(Age,q)), 
+                            Age = ifelse(is.na(Age),median(Age,na.rm=T),Age))
+levels(factored$age.bin) <- c("0-25%","25-50%","50-75%","75-100%","Missing")
+
+summary(factored)
+testModel <- function (formula, train,test)
+{
+  model <- glm(formula=formula, data= train, family="binomial");
+  expected <- (test$Survived);
+  actual <- (ifelse(predict(model,test,type="response")>.5,1,0));
+  confusionMatrix(factor(expected), factor(actual))
+  }
+
+factored %>% group_by(Age,Sex) %>% summarize(ratio = mean(Survived)) %>% ggplot(aes(x=Age,y=ratio, color = Sex)) + geom_point()
+
+testModel(Survived~Sex*poly(Age,2) + Parch + Pclass + poly(SibSp,3), factored, factored)
+
+```

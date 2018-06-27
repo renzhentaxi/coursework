@@ -1,0 +1,2 @@
+lending_club_cleaned.csv, cp ../../lending_club_cleaned.csv ./
+titanic_train.csv, cp ../../titanic_train.csv ./
