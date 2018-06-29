@@ -1,0 +1,8 @@
+1. Picking Control Variables: Imagine you have one data point from every county in the US that gives the unemployment rate in that county 
+in 2010 and the amount of money spent by that country on job training programs in 2008. You want to know the treatment eﬀect of money 
+spent on job training programs onto the outcome of unemployment (as measured two years later). 
+List as many examples as you can think of for each category of control variable:
+(a) Confounding variables: wealth of the county, money spent on previous years.
+(b) Variance-reducing variables: # of new business/jobs, economic growth/decline
+(c) Unrelated variables: number of new born, most popular song for county.
+(d) Bad Controls: unemployment rate in 2011.

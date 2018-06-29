@@ -1,0 +1,62 @@
+---
+title: "hw4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+1. Picking Control Variables: Imagine you have one data point from every county in the US that gives the unemployment rate in that county 
+in 2010 and the amount of money spent by that country on job training programs in 2008. You want to know the treatment e???ect of money 
+spent on job training programs onto the outcome of unemployment (as measured two years later). 
+List as many examples as you can think of for each category of control variable:
+
+(a) Confounding variables: wealth of the county, money spent on previous years, controlling for lagged outcome. current unemployment rate.
+(b) Variance-reducing variables: # of new business/jobs, economic growth/decline
+(c) Unrelated variables: number of new born, most popular song for county.
+(d) Bad Controls: unemployment rate in 2011.
+
+```{r}
+data <- read.csv("dataset.csv")
+
+```
+2. DiD with Card and krueger (1993). Download the dataset and definition ???le from the coursework repo. Note: (1) that the ???rst interview occurred before the onset of the minimum wage and that the second occurred after and (2) this dataset is paired (each restaurant has a before and after observation) so the steps you take will be a little bit di???erent than those discussed in class.
+
+(a) Before looking at the data, look just at the list outcome metrics that were tracked in each interview (EMPFT EMPPT NMGRS WAGEST INCTIME FIRSTINC BONUS PCTAFF MEALS OPEN HRSOPEN PSODA PFRY PENTREE NREGS ). List the ones that you think could be impacted by the minimum wage change and give a brief explanation of why.
+
+* EMPFT, EMPPT: will be impacted since they are being paid by minimum wage.So it is possible that the number will decrease.
+* NMGRS: this wont change much because they are not being paied by minimum wage. so the increase will not affect them at all(I think).
+* WAGEST: will increase since starting salary is usually related to minimum wage.
+* INCTIME,FIRSTINC: increase so that in the long term, the business is not paying people more.
+* BONUS: decrease so business can cut the cost
+* PCTAFF: increase, since if min increase, more people will be affected by it.
+* MEALS:decrease so business can cut cost.
+* OPEN, HRSOPEN:decrease so business can cut cost.
+* PSODA, PFRY,PENTREE: prob increase since business might want more money to pay their employees.
+* NREGS: decrease due to minmum wage increase, since business wants to cut the cost.
+
+(b) Compute the 'di???s'. Check to see if each outcome metric changed in a statistically signi???cant way between the two interviews. Do this analysis separately for PA and NJ
+```{r}
+library(tidyverse)
+
+base.name <-names(data)[1:10]
+before.name <- names(data)[c(11:17,20:27)]
+after.name <- names(data)[c(31:37,39:46)]
+
+diff <- cbind(data[after.name] - data[before.name], STATE=data$STATE)
+
+get_p <- function(x){
+  return (t.test(x)$p.value)
+}
+
+diff %>% group_by(STATE) %>% summarize_all(get_p) %>% View
+```
+
+(c) Now compute the "di???-in-di???" via the regression method. As I mentioned previously, this step will be a little di???erent because the data is paired. Think carefully about the best way to do this and I'll come and chat with you guys about it after about an hour. 
+```
+
+```
+
+(d) Do you believe this analysis provides de???nitive evidence on the impact of the minimum wage on employment? Can you imagine a scenario that would lead to this type of estimation giving biased results? 
+
+(e) Card and Krueger create an Independent Variable called GAP = (5.05???Wpre)/Wpre, this is the percentage wage increase that New Jersey restaurants needed in order to meet the minimum wage. Use the variable WAGEST (from before the interview) to create this variable. How might restaurants with very large or small values of this variable di???er in their response to the minimum wage. Why do you think this variable is interesting? Run any other interesting analysis you can think of using this variable.

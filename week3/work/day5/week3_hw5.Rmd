@@ -1,0 +1,67 @@
+---
+title: "week3_hw5"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+data <- read.csv("Lee(2007)_RDReplication.csv")
+
+data %>% select(DemWin, DifDPct) %>% filter(DemWin ==1, ! is.na(DifDPct))%>% View
+```
+
+Question B.
+```{r}
+formula <- DWinNxt ~ DemWin
+model <- lm(formula, data)
+summary(model)
+#it shows that given DemWIn the chance of winning increases by 80% (since DemWin is an indicator)
+#no because some states are simply pro dem.
+```
+
+Question C.
+
+ForgnPct: confounding 
+GovWkPct: confounding
+BlackPct: confounding
+UrbanPct: confounding
+DWinPrv: This is a confounding variable since it influences both DemWin, and DwinNxt
+YearElec: Unrelated. I dont see how this is important.
+CDNum: unrelated
+
+```{r}
+formula <- DWinNxt ~ DemWin + ForgnPct  + BlackPct +  DemWin* DWinPrv +  UrbanPct
+model <- lm(formula,data)
+summary(model)
+```
+Question D.
+
+```{r}
+formula <- DWinNxt ~ DemWin*poly(DifDPct,3,raw=T)
+model <- lm(formula,data)
+summary(model)
+
+data2 <- data %>% filter(DifDPct < 10 & DifDPct > -10) 
+data2$pred <- predict(model,newdata=data2)
+
+ggplot(data2,aes(x=DifDPct,y=pred)) + geom_point() + geom_smooth(methods="lm",formula = DWinNxt ~ DemWin*poly(DifDPct,3,raw=T))
+
+bin <- cut(data$DifDPct, breaks=seq(-100,100,by=1))
+
+
+data %>% 
+  cbind(bin) %>%  
+  group_by(bin) %>% 
+  summarize(prob = mean(DWinNxt,na.rm=T), count = n()) %>%
+  ggplot( aes(x=bin, y=prob)) + geom_point()
+```
+
+Question E.
+```{r}
+formula <- DWinNxt ~ DifDPct
+RDestimate(formula=formula, data = data)
+```
