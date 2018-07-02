@@ -62,6 +62,7 @@ data %>%
 
 Question E.
 ```{r}
-formula <- DWinNxt ~ DifDPct
-RDestimate(formula=formula, data = data)
+formula <- DWinNxt ~ DifDPct + DemWin
+summary()
+RDestimate(formula=formula, data = data) %>% summary
 ```
