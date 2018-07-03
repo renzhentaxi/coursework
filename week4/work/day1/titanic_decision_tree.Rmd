@@ -1,0 +1,73 @@
+---
+title: "titanic decision tree"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tree)
+library(tidyverse)
+```
+
+1. Loading dataset
+```{r}
+data <- read.csv("titanic_train.csv")
+data$Survived <- factor(data$Survived)
+```
+2. Calculating percentage of passengers survived
+```{r}
+as.numeric(levels(data$Survived)[data$Survived]) %>% mean()
+```
+3. choosing variables
+
+I think sex, age, sibsp,parch, pclass and ticket are all good predictors.
+sex and age are good predictors since they often let children and women leave first.
+sibsp,parch are important since family often will try to save each other.(e.g. the parents will try hard to save their children first and etc)
+pclass and ticket are also good predictors since I think the upperclass will be allowed to leave first as well
+
+4.descision tree with age and sex
+
+```{r}
+tree.sex_age <- tree(Survived~Age + Sex, data)
+summary(tree.sex_age)
+```
+5. descision tree with age and sex and pclass
+```{r}
+tree.sex_age_pclass <- tree(Survived~Age + Sex + as.factor(Pclass), data)
+summary(tree.sex_age_pclass)
+#it has a better error rate than the tree with just age and sex
+```
+
+6. descision tree with age and sex and pclass and parch sibsp
+```{R}
+data$Pclass <- factor(data$Pclass)
+tree.sex_age_pclass_parch_sibsp <- tree(Survived ~ Age + Sex + Pclass + SibSp, data)
+summary(tree.sex_age_pclass_parch_sibsp)
+
+plot(tree.sex_age_pclass_parch_sibsp)
+text(tree.sex_age_pclass_parch_sibsp,pretty=0)
+#slight decrease in error rate
+```
+7. loading test set and predicting with it
+```{r}
+test <- read.csv("titanic_test.csv")
+test$Pclass <- factor(test$Pclass)
+pred <- predict(tree.sex_age_pclass_parch_sibsp, newdata = test, type = "class")
+submit <- data.frame(PassengerId=test$PassengerId,Survived =pred)
+write.csv(submit,"submission.csv", row.names=F, quote = F)
+```
+
+```{r}
+data$Survived_Raw <- as.numeric(levels(data$Survived)[data$Survived])
+data$age_bin <- cut(data$Age, breaks = seq(0,80,by = 5))
+
+data$married <- grepl("Mrs",data$Name)
+data[grep("Miss",data$Name),]$Survived_Raw %>%  mean()
+data %>% filter(!married)%>% .$Survived_Raw %>% mean()
+data[grep("Mrs",data$Name),]$Survived_Raw %>% mean()
+data%>% filter(SibSp == 1) %>% .$Survived_Raw %>% mean()
+
+data %>% filter(grep("Miss", Name))
+data %>% group_by(Embarked)%>% summarize(rate = mean(Survived_Raw), count = n()) %>% 
+ggplot(aes(x=Embarked, y=rate)) + geom_point()
+```

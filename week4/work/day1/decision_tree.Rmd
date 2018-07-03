@@ -1,0 +1,58 @@
+---
+title: "Decision Tree"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tree)
+library(ISLR)
+attach(Carseats)
+```
+
+```{r inclue=FALSE}
+High <- ifelse(Sales <= 8, "No", "Yes")
+Carseats <- data.frame(Carseats,High)
+```
+
+creating and ploting tree
+```{r}
+tree.carseats <- tree(High~.-Sales, Carseats)
+summary(tree.carseats)
+plot(tree.carseats)
+text(tree.carseats)
+```
+
+use test data and predict
+```{r}
+set.seed(0)
+train <- sample(x = 1:nrow(Carseats), size = 200)
+Carseats.test <- Carseats[-train,]
+High.test <- High[-train]
+tree.carseats <- tree(High~.-Sales, Carseats,subset=train)
+tree.pred <- predict(tree.carseats, Carseats.test, type="class")
+
+table(tree.pred,High.test)
+```
+cv and prune
+```{r}
+set.seed(0)
+cv.carseats <- cv.tree(tree.carseats, FUN = prune.misclass)
+
+names(cv.carseats)
+cv.carseats
+
+par(mfrow=c(1,2))
+plot(cv.carseats$size,cv.carseats$dev,type="b")
+plot(cv.carseats$k, cv.carseats$dev, type="b")
+
+```
+
+predict prune
+```{r}
+prune.carseats <- prune.misclass(tree.carseats, best=9)
+plot(prune.carseats)
+text(prune.carseats,pretty=0)
+tree.pred <- predict(prune.carseats, Carseats.test, type="class")
+table(tree.pred,High.test)
+```

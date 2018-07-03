@@ -1,0 +1,2 @@
+titanic_train.csv, wget https://www.dropbox.com/s/eg6kack8wmlqmhg/titanic_train.csv
+titanic_test.csv, wget https://www.dropbox.com/s/x7vt6nrankfj0kz/titanic_test.csv?raw=1 -O titanic_test.csv
