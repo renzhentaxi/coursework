@@ -16,3 +16,4 @@ notes/**/*.csv
 *.rdata
 
 temp_*
+secret_*
