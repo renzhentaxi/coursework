@@ -1,0 +1,3 @@
+classify_nyt_articles.R, cp ../../classify_nyt_articles.R ./
+data.tsv, cp ../../data.tsv ./
+test2.py, cp ../../test2.py ./
