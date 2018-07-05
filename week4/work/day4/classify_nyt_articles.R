@@ -69,9 +69,9 @@ performance(predObject,'auc')
 # show weights on words with top 10 weights for business
 # use the coef() function to get the coefficients
 # and tidy() to convert them into a tidy data frame
-weights <- tidy(coef(model)) %>% select(term=row, weight=value)
+weights <- tidy(coef(model)) %>% select(term=row, weight=value) %>% arrange(weight)
 
-weights %>% arrange(weight) %>% head(10)
+weights %>% head(10)
 # show weights on words with top 10 weights for world
-weights %>% arrange(desc(weight)) %>% head(10)
+weights %>% tail(10) %>% arrange(desc(weight))
 
