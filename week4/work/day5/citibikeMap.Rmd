@@ -1,0 +1,11 @@
+---
+title: "Citibike Maps"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+load('2014_trips.rdata')
+```
+

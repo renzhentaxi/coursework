@@ -1,0 +1,3 @@
+2014_trips.rdata, cp ../../../week2/work/day4/2014/trips.rdata ./2014_trips.rdata
+2014_july_trips.csv, cp ../../../week2/work/day4/2014/201407-citibike-tripdata.csv ./2014_july_trips.csv
+2014_weather.csv, cp ../../../week2/work/day4/2014/weather_2014.csv ./2014_weather.csv
